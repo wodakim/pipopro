@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>PIPOPIPETTE MVP</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="topbar">
+      <button id="logoBtn" class="logo" aria-label="PIPOPIPETTE">PIPOPIPETTE</button>
+      <div class="meta">
+        <span id="pseudoLabel">Pseudo: Joueur</span>
+        <span>Rang: Bronze I</span>
+        <span id="gemLabel">Gemmes: 120</span>
+      </div>
+    </header>
+
+    <main>
+      <section id="homeScreen" class="screen active">
+        <div class="hero">
+          <h1>PIPOPIPETTE</h1>
+          <button id="playBtn" class="btn btn-play">JOUER</button>
+        </div>
+
+        <div class="preset-row">
+          <button class="btn secondary preset" data-grid="5">5x5 rapide</button>
+          <button class="btn secondary preset" data-grid="8">8x8 défi</button>
+          <button class="btn secondary preset" data-grid="12">12x12 hardcore</button>
+        </div>
+
+        <div class="career-mini">
+          <div>Parties: <strong id="statMatches">0</strong></div>
+          <div>Victoires J1: <strong id="statP1Wins">0</strong></div>
+          <div>Victoires J2: <strong id="statP2Wins">0</strong></div>
+        </div>
+
+        <div class="viral-box">
+          <div>Série de victoire: <strong id="streakLabel">0</strong></div>
+          <div class="online-actions">
+            <button id="dailyClaimBtn" class="btn secondary">Récompense quotidienne</button>
+            <button id="shareBtn" class="btn secondary">Partager défi</button>
+          </div>
+        </div>
+
+        <div class="party-box">
+          <div class="history-title">Missions du jour</div>
+          <ul id="missionList"></ul>
+        </div>
+
+        <div class="menu-grid">
+          <button id="multiplayerBtn" class="btn secondary">Multijoueur</button>
+          <button id="trainingBtn" class="btn secondary">Entraînement</button>
+          <button class="btn secondary placeholder">Tournois</button>
+          <button class="btn secondary placeholder">Clan</button>
+          <button class="btn secondary placeholder">Boutique</button>
+          <button class="btn secondary placeholder">Profil</button>
+          <button id="settingsBtn" class="btn secondary">Paramètres</button>
+        </div>
+      </section>
+
+      <section id="onlineScreen" class="screen">
+        <h2>Mise en relation en ligne (préparation)</h2>
+        <p class="online-note">Mode offline mock: file, room code, latence simulée et journal protocolaire. Prêt pour brancher backend websocket authoritative.</p>
+
+        <label>Région
+          <select id="regionInput">
+            <option value="EUW">EUW</option>
+            <option value="EUNE">EUNE</option>
+            <option value="NA">NA</option>
+            <option value="SA">SA</option>
+          </select>
+        </label>
+
+        <label>Mode match online
+          <select id="onlineModeInput">
+            <option value="RANKED">Ranked 1v1</option>
+            <option value="CASUAL">Casual 1v1</option>
+            <option value="FRIENDLY">Friendly room code</option>
+          </select>
+        </label>
+
+        <label>Latence simulée: <span id="latencyLabel">80ms</span>
+          <input id="latencyInput" type="range" min="20" max="350" value="80" />
+        </label>
+
+        <label>Packet loss simulée: <span id="packetLossLabel">0%</span>
+          <input id="packetLossInput" type="range" min="0" max="20" value="0" />
+        </label>
+
+        <div class="online-actions">
+          <button id="queueBtn" class="btn">Lancer la file</button>
+          <button id="cancelQueueBtn" class="btn secondary">Annuler</button>
+        </div>
+
+        <div class="room-box">
+          <div>Room code: <strong id="roomCodeLabel">----</strong></div>
+          <div class="online-actions">
+            <button id="createRoomBtn" class="btn secondary">Créer room</button>
+            <button id="joinRoomBtn" class="btn secondary">Rejoindre code</button>
+          </div>
+          <button id="copyInviteBtn" class="btn secondary">Copier invitation</button>
+        </div>
+
+        <div class="party-box">
+          <div class="history-title">Party / lobby mock</div>
+          <ul id="partyList"></ul>
+        </div>
+
+        <div id="matchStatus" class="match-status">Statut: idle</div>
+
+        <div class="history-box">
+          <div class="history-title">Journal protocole réseau (mock)</div>
+          <ul id="netLog"></ul>
+        </div>
+
+        <button id="backHomeFromOnlineBtn" class="btn secondary">Retour</button>
+      </section>
+
+      <section id="gameScreen" class="screen">
+        <div class="scoreboard">
+          <div id="p1Box" class="player-box active-turn">J1: <strong id="p1Score">0</strong></div>
+          <div id="turnLabel" class="turn">Tour: J1</div>
+          <div id="timerBox" class="timer">--</div>
+          <div id="p2Box" class="player-box">J2: <strong id="p2Score">0</strong></div>
+        </div>
+
+        <div class="subhud">
+          <div id="friendlyTag" class="tag hidden">Partie amie (FREE)</div>
+          <div id="linesCount">Lignes: 0/0</div>
+        </div>
+        <div class="timer-track" aria-hidden="true"><span id="timerFill"></span></div>
+
+        <div class="canvas-wrap">
+          <canvas id="boardCanvas" width="720" height="720" aria-label="Plateau de jeu"></canvas>
+        </div>
+
+        <div class="history-box">
+          <div class="history-title">Dernières actions</div>
+          <ul id="turnHistory"></ul>
+        </div>
+
+        <div class="actions">
+          <button id="pauseBtn" class="btn">Pause</button>
+          <button id="restartBtn" class="btn">Rejouer</button>
+          <button id="quitBtn" class="btn">Quitter</button>
+        </div>
+      </section>
+
+      <section id="settingsScreen" class="screen">
+        <h2>Paramètres</h2>
+        <label>Pseudo
+          <input id="pseudoInput" type="text" maxlength="16" placeholder="Votre pseudo" />
+        </label>
+        <label>Taille grille: <span id="gridSizeLabel">5</span>
+          <input id="gridSizeInput" type="range" min="5" max="20" value="5" />
+        </label>
+        <label>Mode chrono
+          <select id="timerModeInput">
+            <option value="BLITZ">BLITZ (10s)</option>
+            <option value="CLASSIC">CLASSIC (30s)</option>
+            <option value="STRATEGIC">STRATEGIC (60s)</option>
+            <option value="FREE">FREE (Parties amies)</option>
+          </select>
+        </label>
+        <label>Thème
+          <select id="themeInput">
+            <option value="NOTEBOOK">Notebook</option>
+            <option value="NIGHT">Night</option>
+            <option value="RETRO">Retro</option>
+          </select>
+        </label>
+        <label>Qualité
+          <select id="qualityInput">
+            <option value="LOW">Low</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="ULTRA">Ultra</option>
+          </select>
+        </label>
+        <label>Volume musique (mock)
+          <input id="musicVolume" type="range" min="0" max="100" value="50" />
+        </label>
+        <label>Volume SFX (mock)
+          <input id="sfxVolume" type="range" min="0" max="100" value="60" />
+        </label>
+        <label class="inline">
+          <input id="vibrationInput" type="checkbox" checked /> Vibration active
+        </label>
+        <div class="legal-links">
+          <button data-legal="cgu" class="btn secondary">CGU</button>
+          <button data-legal="privacy" class="btn secondary">Privacy</button>
+          <button data-legal="rgpd" class="btn secondary">RGPD</button>
+        </div>
+        <div class="data-tools">
+          <button id="exportDataBtn" class="btn secondary">Exporter save</button>
+          <button id="importDataBtn" class="btn secondary">Importer save</button>
+          <button id="resetDataBtn" class="btn secondary">Reset save</button>
+        </div>
+        <button id="saveSettingsBtn" class="btn">Sauvegarder</button>
+        <button id="backHomeBtn" class="btn secondary">Retour</button>
+      </section>
+    </main>
+
+    <footer class="news-bar">
+      <span id="newsTicker">Bienvenue sur PIPOPIPETTE !</span>
+    </footer>
+
+    <section class="todo-next">
+      <h3>TODO NEXT (mis à jour)</h3>
+      <ul>
+        <li>✅ MVP offline jouable + presets + thèmes + debug</li>
+        <li>✅ Préparation online UI + états + adaptateur mock</li>
+        <li>✅ Couche viralité (missions, reward daily, share challenge)</li>
+        <li>🔜 Backend authoritative (rooms, sync events, reconnexion)</li>
+        <li>🔜 Matchmaking réel (MMR, ping region, penalties)</li>
+        <li>🔜 Anti-cheat côté serveur</li>
+        <li>🔜 Skins / battle pass / économie live ops</li>
+        <li>🔜 Clans / tournois / spectate / replay</li>
+      </ul>
+    </section>
+  </div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <h3 id="modalTitle"></h3>
+      <p id="modalBody"></p>
+      <button id="modalClose" class="btn">Fermer</button>
+    </div>
+  </div>
+
+  <div id="debugPanel" class="debug-panel hidden">
+    <h4>Debug</h4>
+    <div id="debugStats">Lines: 0/0 | FPS: 0</div>
+    <button id="fillRandomBtn" class="btn secondary">Fill random lines</button>
+    <button id="fillEndgameBtn" class="btn secondary">Fill to endgame</button>
+  </div>
+
+  <div id="fxLayer" class="fx-layer" aria-hidden="true"></div>
+  <div id="srAnnouncer" class="sr-only" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
